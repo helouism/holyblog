@@ -126,4 +126,4 @@ _modules/*
 /phpunit*.xml
 
 # Image cover folder
-public/uploads/covers/*.webp
+public/uploads/covers/*
