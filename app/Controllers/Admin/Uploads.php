@@ -3,37 +3,82 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use CodeIgniter\Images\Exceptions\ImageException;
 
 class Uploads extends BaseController
 {
     public function cover()
     {
-        $file = $this->request->getFile('image_cover'); // FilePond sends field name "file" by default
+        // Try our input name first (FilePond uses the input name)
+        $file = $this->request->getFile("image_cover");
 
-        if (!$file || !$file->isValid()) {
-            return $this->response->setStatusCode(400)->setBody('Invalid upload');
+        // Fallback to 'file' if needed
+        if (!$file) {
+            $file = $this->request->getFile("file");
         }
 
-        // Basic validation
-        $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!$file || !$file->isValid()) {
+            return $this->response
+                ->setStatusCode(400)
+                ->setBody("Invalid upload");
+        }
+
+        // Basic validation on original file
+        $allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
         $ext = strtolower($file->getClientExtension());
 
         if (!in_array($ext, $allowedExt, true)) {
-            return $this->response->setStatusCode(415)->setBody('Invalid file type');
+            return $this->response
+                ->setStatusCode(415)
+                ->setBody("Invalid file type");
         }
 
-        if ($file->getSize() > 3 * 1024 * 1024) { // 3 MB
-            return $this->response->setStatusCode(413)->setBody('File too large');
+        if ($file->getSize() > 3 * 1024 * 1024) {
+            // 3 MB
+            return $this->response
+                ->setStatusCode(413)
+                ->setBody("File too large");
         }
 
-        $newName = $file->getRandomName();
-        $file->move(FCPATH . 'uploads/covers', $newName);
-
-        if (!$file->hasMoved()) {
-            return $this->response->setStatusCode(500)->setBody('Could not save file');
+        // Destination folder
+        $targetDir = FCPATH . "uploads/covers";
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
         }
 
-        // Return the filename as plain text; FilePond will store it
+        // Generate a random name, but force .webp extension
+        $randomName = $file->getRandomName(); // e.g. "abc123.jpg"
+        $baseName = pathinfo($randomName, PATHINFO_FILENAME); // e.g. "abc123"
+        $newName = $baseName . ".webp"; // e.g. "abc123.webp"
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $newName;
+
+        // Use CI4 image service to convert to WebP with quality 100
+        // Docs: service('image')->withFile(...)->convert(IMAGETYPE_WEBP)->save(..., $quality)
+        $sourcePath = $file->getTempName(); // temp upload path
+
+        try {
+            $image = service("image");
+
+            $image
+                ->withFile($sourcePath)
+                ->convert(IMAGETYPE_WEBP)
+                ->save($targetPath, 100); // quality 0–100, works for JPEG & WebP since CI 4.4.0
+        } catch (ImageException $e) {
+            log_message("error", "Cover upload failed: {msg}", [
+                "msg" => $e->getMessage(),
+            ]);
+            return $this->response
+                ->setStatusCode(500)
+                ->setBody("Could not process image");
+        }
+
+        if (!is_file($targetPath)) {
+            return $this->response
+                ->setStatusCode(500)
+                ->setBody("Could not save image");
+        }
+
+        // Return the *webp* filename as plain text, for FilePond to use as the field value
         return $this->response->setStatusCode(200)->setBody($newName);
     }
 }
