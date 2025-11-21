@@ -61,10 +61,7 @@ class CreatePostsTable extends Migration
                 "type" => "DATETIME",
                 "null" => true,
             ],
-            "deleted_at" => [
-                "type" => "DATETIME",
-                "null" => true,
-            ],
+
         ]);
 
         $this->forge->addKey("id", true);

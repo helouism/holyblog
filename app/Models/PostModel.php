@@ -10,7 +10,7 @@ class PostModel extends Model
     protected $primaryKey = "id";
     protected $useAutoIncrement = true;
     protected $returnType = "array";
-    protected $useSoftDeletes = true;
+    protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
         "user_id",
@@ -34,7 +34,7 @@ class PostModel extends Model
     protected $dateFormat = "datetime";
     protected $createdField = "created_at";
     protected $updatedField = "updated_at";
-    protected $deletedField = "deleted_at";
+
 
     // Validation
     protected $validationRules = [

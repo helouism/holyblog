@@ -199,20 +199,43 @@ class Posts extends BaseController
 
     public function delete($id)
     {
+        // Get the post first so we know what file to delete
+        $post = $this->postModel->find($id);
+
+        if (!$post) {
+            // If it doesn't exist, just behave as "deleted"
+            if ($this->request->isHtmx()) {
+                return $this->index();
+            }
+
+            return redirect()
+                ->to(route_to('admin.posts.index'))
+                ->with('success', 'Post already removed.');
+        }
+
+        // Soft delete the row (your model uses useSoftDeletes = true)
         $this->postModel->delete($id);
 
-        // For htmx delete, return updated table
-        if (
-            $this->request->isAJAX() &&
-            $this->request->getHeaderLine("HX-Request")
-        ) {
+        // Remove the cover image from disk, if any
+        if (!empty($post['image_cover'])) {
+            $path = FCPATH . 'uploads/covers/' . $post['image_cover'];
+
+            if (is_file($path)) {
+                @unlink($path); // suppress warning if file already gone
+            }
+        }
+
+        // HTMX request: re-render the table only
+        if ($this->request->isHtmx()) {
             return $this->index();
         }
 
+        // Normal request: redirect back with flash message
         return redirect()
-            ->to(route_to("admin.posts.index"))
-            ->with("success", "Post deleted.");
+            ->to(route_to('admin.posts.index'))
+            ->with('success', 'Post deleted.');
     }
+
 
     public function toggleStatus($id)
     {
