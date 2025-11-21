@@ -7,6 +7,13 @@ use CodeIgniter\Images\Exceptions\ImageException;
 
 class Uploads extends BaseController
 {
+    protected $imageService;
+
+    public function __construct()
+    {
+        $this->imageService = service("image");
+    }
+
     public function cover()
     {
         // Try our input name first (FilePond uses the input name)
@@ -57,9 +64,7 @@ class Uploads extends BaseController
         $sourcePath = $file->getTempName(); // temp upload path
 
         try {
-            $image = service("image");
-
-            $image
+            $this->imageService
                 ->withFile($sourcePath)
                 ->convert(IMAGETYPE_WEBP)
                 ->save($targetPath, 100); // quality 0–100, works for JPEG & WebP since CI 4.4.0
