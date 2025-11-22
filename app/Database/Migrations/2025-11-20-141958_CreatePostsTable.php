@@ -15,11 +15,11 @@ class CreatePostsTable extends Migration
                 "unsigned" => true,
                 "auto_increment" => true,
             ],
-            "user_id" => [
-                "type" => "INT",
-                "constraint" => 11,
-                "unsigned" => true,
-                "null" => true, // admin user (Shield's users table)
+
+            "username" => [
+                "type" => "VARCHAR",
+                "constraint" => "30",
+                "null" => false,
             ],
             "title" => [
                 "type" => "VARCHAR",
@@ -65,6 +65,7 @@ class CreatePostsTable extends Migration
         ]);
 
         $this->forge->addKey("id", true);
+        $this->forge->addForeignKey("username", "users", "username", "CASCADE", "CASCADE");
 
         $this->forge->createTable("posts");
     }

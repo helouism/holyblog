@@ -17,15 +17,17 @@ class Posts extends BaseController
         helper(["form", "url", "text", "session"]);
         $this->postModel = new PostModel();
         $this->tagModel = new TagModel();
+
     }
 
     public function index()
     {
+        $username = auth()->user()->username;
         $page = (int) ($this->request->getGet("page") ?? 1);
         $perPage = 10;
         $q = trim((string) $this->request->getGet("q"));
 
-        $builder = $this->postModel->withTags()->orderBy("created_at", "DESC");
+        $builder = $this->postModel->withTags()->orderBy("created_at", "DESC")->where('posts.username', $username);
 
         if ($q !== "") {
             $builder = $builder
@@ -34,6 +36,7 @@ class Posts extends BaseController
                 ->orLike("posts.content", $q)
                 ->orLike("tags.name", $q)
                 ->groupEnd();
+
         }
 
         $posts = $builder->paginate($perPage, "default", $page);
@@ -95,7 +98,7 @@ class Posts extends BaseController
         }
 
         $id = $this->postModel->insert([
-            'user_id' => user_id(),
+            'username' => auth()->user()->username,
             'title' => $postData['title'],
             'slug' => $slug,
             'meta_description' => $postData['meta_description'],

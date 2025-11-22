@@ -20,12 +20,15 @@ class Dashboard extends BaseController
 
     public function index()
     {
+        $username = auth()->user()->username;
         // Basic stats
         $totalPosts = $this->postModel->countAll();
         $publishedPosts = $this->postModel
+            ->where('posts.username', $username)
             ->where("status", "published")
             ->countAllResults();
         $draftPosts = $this->postModel
+            ->where('posts.username', $username)
             ->where("status", "draft")
             ->countAllResults();
 
@@ -33,6 +36,7 @@ class Dashboard extends BaseController
         $recentPosts = $this->postModel
             ->withTags()
             ->orderBy("created_at", "DESC")
+            ->where('posts.username', $username)
             ->limit(5)
             ->find();
 

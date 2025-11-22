@@ -13,7 +13,7 @@ class PostModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        "user_id",
+        "username",
         "title",
         "slug",
         "meta_description",
@@ -38,6 +38,7 @@ class PostModel extends Model
 
     // Validation
     protected $validationRules = [
+
         "title" => "required|min_length[3]|max_length[255]",
         "meta_description" => "required|min_length[10]|max_length[255]", // <— add this
 
@@ -45,6 +46,7 @@ class PostModel extends Model
         "content" => "required",
     ];
     protected $validationMessages = [
+
         "title.required" => "Title is required",
         "title.min_length" => "Title must be at least 3 characters long",
         "title.max_length" => "Title cannot exceed 255 characters",
