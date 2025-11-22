@@ -4,6 +4,14 @@
 
 <article>
     <h1><?= esc($post["title"]) ?></h1>
+    <p class="post-meta" style="margin-top:.25rem; color:var(--muted,#666);">
+        <small>
+            Published: <?= esc(date('l jS \of F Y h:i:s A', strtotime($post['created_at']))) ?>
+        </small>
+        <?php if (!empty($post['updated_at']) && $post['updated_at'] !== $post['created_at']): ?>
+            <small> <br>Updated: <?= esc(date('l jS \of F Y h:i:s A', strtotime($post['updated_at']))) ?></small>
+        <?php endif; ?>
+    </p>
     <?php if (!empty($tags)): ?>
         <p>
             <?php foreach ($tags as $tag): ?>

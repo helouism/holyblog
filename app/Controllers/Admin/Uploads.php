@@ -16,10 +16,8 @@ class Uploads extends BaseController
 
     public function cover()
     {
-        // Try our input name first (FilePond uses the input name)
         $file = $this->request->getFile("image_cover");
 
-        // Fallback to 'file' if needed
         if (!$file) {
             $file = $this->request->getFile("file");
         }
@@ -30,7 +28,6 @@ class Uploads extends BaseController
                 ->setBody("Invalid upload");
         }
 
-        // Basic validation on original file
         $allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
         $ext = strtolower($file->getClientExtension());
 
@@ -59,8 +56,6 @@ class Uploads extends BaseController
         $newName = $baseName . ".webp"; // e.g. "abc123.webp"
         $targetPath = $targetDir . DIRECTORY_SEPARATOR . $newName;
 
-        // Use CI4 image service to convert to WebP with quality 100
-        // Docs: service('image')->withFile(...)->convert(IMAGETYPE_WEBP)->save(..., $quality)
         $sourcePath = $file->getTempName(); // temp upload path
 
         try {
