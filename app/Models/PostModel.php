@@ -46,20 +46,23 @@ class PostModel extends Model
         "content" => "required",
     ];
     protected $validationMessages = [
-
-        "title.required" => "Title is required",
-        "title.min_length" => "Title must be at least 3 characters long",
-        "title.max_length" => "Title cannot exceed 255 characters",
-        "meta_description.required" => "Meta description is required",
-        "meta_description.min_length" =>
-            "Meta description must be at least 10 characters long",
-        "meta_description.max_length" =>
-            "Meta description cannot exceed 255 characters",
-
-
-        "status.required" => "Status is required",
-        "status.in_list" => "Status must be either 'draft' or 'published'",
-        "content.required" => "Content is required",
+        'title' => [
+            'required' => 'Title is required',
+            'min_length' => 'Title must be at least 3 characters long',
+            'max_length' => 'Title cannot exceed 255 characters',
+        ],
+        'meta_description' => [
+            'required' => 'Meta description is required',
+            'min_length' => 'Meta description must be at least 10 characters long',
+            'max_length' => 'Meta description cannot exceed 255 characters',
+        ],
+        'status' => [
+            'required' => 'Status is required',
+            'in_list' => "Status must be either 'draft' or 'published'",
+        ],
+        'content' => [
+            'required' => 'Content is required',
+        ],
     ];
     protected $skipValidation = false;
     protected $cleanValidationRules = true;
